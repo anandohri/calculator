@@ -27,26 +27,30 @@ function Clear(props){
 }
 
 function Screen(props){
+  const curr = props.operator === 'NA' ? props.num1 
+                                        : props.operator === '=' ? props.num1.toString() + '='
+                                                                  : props.num2;
   return (
-    <textarea className="screen" value={props.res} onChange={props.onChange}>
-      {props.res}
-    </textarea>
+    <textarea className="screen" value = {curr} />
   );
 }
 
 function History(props){
+  const hist = props.operator === 'NA' ? props.num1 
+                                        : props.operator === '=' ? props.hist.toString() 
+                                                                    :props.num1.toString() + props.operator + props.num2.toString();
   return (
-    <textarea className="history" value={props.hist} >
-      {props.hist}
-    </textarea>
+    <textarea className="history" value={hist} />
   );
 }
 
-class Keypad extends React.Component{
+class Calc extends React.Component{
   constructor(props){
     super(props);
-    this.state = {result: '0',
-                  history: '0'}
+    this.state = {nums: [0, 0],
+                  operand: 0,
+                  operator: 'NA',
+                  hist: 'NA'}
     this.renderNumber = this.renderNumber.bind(this);
     this.renderClear = this.renderClear.bind(this);
     this.renderFunction = this.renderFunction.bind(this);
@@ -56,6 +60,8 @@ class Keypad extends React.Component{
     this.handleClear = this.handleClear.bind(this);
     this.handleFunction = this.handleFunction.bind(this);
     this.handleNumber = this.handleNumber.bind(this);
+    this.handleEquals = this.handleEquals.bind(this);
+    
   }
 
   renderNumber(i){
@@ -66,7 +72,10 @@ class Keypad extends React.Component{
 
   renderFunction(i){
     return(
-      <Functions value = {i} onClick={this.handleFunction} />
+      i === '=' ? <div>
+                    <Functions value = {i} onClick={this.handleEquals} />
+                  </div>
+                  : <Functions value = {i} onClick={this.handleFunction} />
     );
   }
 
@@ -78,31 +87,73 @@ class Keypad extends React.Component{
 
   renderScreen(){
     return(
-      <Screen res = {this.state.result} />
+      <Screen num1 = {this.state.nums[0]} num2 = {this.state.nums[1]} operator = {this.state.operator} />
     );
   }
 
   renderHistory(){
     return(
-      <History hist = {this.state.history} />
+      <History num1 = {this.state.nums[0]} num2 = {this.state.nums[1]} operator = {this.state.operator} hist = {this.state.hist} />
     );
   }
 
   handleClear(){
-    this.setState({history: '0', result: '0'})
+    this.setState({nums: [0, 0], operand: 0, operator: 'NA', hist: 'NA'})
   }
 
-  handleFunction(e){
-    const res = this.state.result;
-    const hist = this.state.history
-    hist === '0' ? this.setState({result: '0', history: res + e.target.value}) 
-                    : this.setState({result: '0', history: hist + res + e.target.value})
+  handleNumber(props){
+    let num = 0;
+    if(this.state.operator === 'NA'){
+      num = (this.state.nums[0] * 10) + parseInt(props.target.value);
+      this.setState({nums: [num, this.state.nums[1]]})
+    }
+    else{
+      num = (this.state.nums[1] * 10) + parseInt(props.target.value);
+      this.setState({nums: [this.state.nums[0], num]})
+    }
   }
 
-  handleNumber(e){
-    const res = this.state.result;
-    res === '0' ? this.setState({result: e.target.value})
-                  : this.setState({result: res + e.target.value})
+  handleFunction(props){
+    if(this.state.operand === 0){
+      this.setState({operand: 1, operator: props.target.value});
+    }
+    else{
+      const numbers = this.state.nums.slice();
+      this.compute(numbers);
+      this.setState({operator: props.target.value});
+    }
+  }
+
+  handleEquals(){
+    if(this.state.operand === 1){
+      const numbers = this.state.nums.slice();
+      const prev = numbers[0].toString() + this.state.operator + numbers[1].toString()
+      this.compute(numbers);
+      this.setState({operator: '=', hist: prev});
+    }
+  }
+
+  compute(numb){
+    if(this.state.operator === '+'){
+      numb[0] = numb[0] + numb[1];
+      numb[1] = 0;
+      this.setState({nums: numb})
+    }
+    else if(this.state.operator === '-'){
+      numb[0] = numb[0] - numb[1];
+      numb[1] = 0;
+      this.setState({nums: numb})
+    }
+    else if(this.state.operator === '*'){
+      numb[0] = numb[0] * numb[1];
+      numb[1] = 0;
+      this.setState({nums: numb})
+    }
+    else if(this.state.operator === '/'){
+      numb[0] = numb[0] / numb[1];
+      numb[1] = 0;
+      this.setState({nums: numb})
+    }
   }
 
   render(){
@@ -140,15 +191,15 @@ class Keypad extends React.Component{
         </div>
         <div className="board-row">
           {this.renderClear()}
-          {this.state.history}
+          {this.state.nums}
         </div>
-        {this.state.result}
+        {this.state.operator}
       </div>
     )
   }
 }
 
 ReactDOM.render(
-  <Keypad />,
+  <Calc />,
   document.getElementById('root')
 );
