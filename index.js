@@ -50,7 +50,8 @@ class Calc extends React.Component{
     this.state = {nums: [0, 0],
                   operand: 0,
                   operator: 'NA',
-                  hist: 'NA'}
+                  hist: 'NA',
+                  isFloat: [false, false]}
     this.renderNumber = this.renderNumber.bind(this);
     this.renderClear = this.renderClear.bind(this);
     this.renderFunction = this.renderFunction.bind(this);
@@ -61,20 +62,20 @@ class Calc extends React.Component{
     this.handleFunction = this.handleFunction.bind(this);
     this.handleNumber = this.handleNumber.bind(this);
     this.handleEquals = this.handleEquals.bind(this);
+    this.handleDecimal = this.handleDecimal.bind(this);
     
   }
 
   renderNumber(i){
     return(
-      <Numbers value = {i} onClick={this.handleNumber} />
+      i === '.' ? <Numbers value = {i} onClick={this.handleDecimal} />
+                  : <Numbers value = {i} onClick={this.handleNumber} />
     );
   }
 
   renderFunction(i){
     return(
-      i === '=' ? <div>
-                    <Functions value = {i} onClick={this.handleEquals} />
-                  </div>
+      i === '=' ? <Functions value = {i} onClick={this.handleEquals} />
                   : <Functions value = {i} onClick={this.handleFunction} />
     );
   }
@@ -104,12 +105,35 @@ class Calc extends React.Component{
   handleNumber(props){
     let num = 0;
     if(this.state.operator === 'NA'){
-      num = (this.state.nums[0] * 10) + parseInt(props.target.value);
-      this.setState({nums: [num, this.state.nums[1]]})
+      if(this.state.isFloat[0]){
+        num = (this.state.nums[0] * 10) + parseInt(props.target.value);
+        num = num * 0.1;
+        this.setState({nums: [num, this.state.nums[1]]});
+      }
+      else{
+        num = (this.state.nums[0] * 10) + parseInt(props.target.value);
+        this.setState({nums: [num, this.state.nums[1]]});
+      }
     }
     else{
-      num = (this.state.nums[1] * 10) + parseInt(props.target.value);
-      this.setState({nums: [this.state.nums[0], num]})
+      if(this.state.isFloat[1]){
+        num = (this.state.nums[1] * 10) + parseInt(props.target.value);
+        num = num * 0.1;
+        this.setState({nums: [this.state.nums[0], num]})
+      }
+      else{          
+        num = (this.state.nums[1] * 10) + parseInt(props.target.value);
+        this.setState({nums: [this.state.nums[0], num]})
+      }
+    }
+  }
+
+  handleDecimal(){
+    if(this.state.operator === 'NA'){
+      this.setState({isFloat: [true, this.state.isFloat[1]]})
+    }
+    else{
+      this.setState({isFloat: [this.state.isFloat[0], true]})
     }
   }
 
@@ -191,9 +215,7 @@ class Calc extends React.Component{
         </div>
         <div className="board-row">
           {this.renderClear()}
-          {this.state.nums}
         </div>
-        {this.state.operator}
       </div>
     )
   }
