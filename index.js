@@ -99,16 +99,21 @@ class Calc extends React.Component{
   }
 
   handleClear(){
-    this.setState({nums: [0, 0], operand: 0, operator: 'NA', hist: 'NA'})
+    this.setState({nums: [0, 0], operand: 0, operator: 'NA', hist: 'NA', isFloat : [false, false]})
   }
 
   handleNumber(props){
     let num = 0;
     if(this.state.operator === 'NA'){
+      let str = this.state.nums[0] + ' '
       if(this.state.isFloat[0]){
-        num = (this.state.nums[0] * 10) + parseInt(props.target.value);
-        num = num * 0.1;
-        this.setState({nums: [num, this.state.nums[1]]});
+        if(str.indexOf('.') === -1){
+          num = this.state.nums[0] + '.' + props.target.value;
+        }
+        else{
+          num = this.state.nums[0] + props.target.value;
+        }
+        this.setState({nums: [parseFloat(num), this.state.nums[1]]});
       }
       else{
         num = (this.state.nums[0] * 10) + parseInt(props.target.value);
@@ -116,10 +121,15 @@ class Calc extends React.Component{
       }
     }
     else{
+      let str = this.state.nums[1] + ' '
       if(this.state.isFloat[1]){
-        num = (this.state.nums[1] * 10) + parseInt(props.target.value);
-        num = num * 0.1;
-        this.setState({nums: [this.state.nums[0], num]})
+        if(str.indexOf('.') === -1){
+          num = this.state.nums[1] + '.' + props.target.value;
+        }
+        else{
+          num = this.state.nums[1] + props.target.value;
+        }
+        this.setState({nums: [this.state.nums[0], parseFloat(num)]})
       }
       else{          
         num = (this.state.nums[1] * 10) + parseInt(props.target.value);
@@ -182,40 +192,49 @@ class Calc extends React.Component{
 
   render(){
     return(
-      <div className="calc">
-        <div className="board-row">
-          {this.renderHistory()}
+      <div>
+        <h1>Calculator</h1>
+        <hr />
+        <div className="calc">
+          <div className="board-row">
+            {this.renderHistory()}
+          </div>
+          <div className="board-row">
+            {this.renderScreen()}
+          </div>
+          <div className="board-row">
+            {this.renderNumber(7)}
+            {this.renderNumber(8)}
+            {this.renderNumber(9)}
+            {this.renderFunction('/')}
+          </div>
+          <div className="board-row">
+            {this.renderNumber(4)}
+            {this.renderNumber(5)}
+            {this.renderNumber(6)}
+            {this.renderFunction('*')}
+          </div>
+          <div className="board-row">
+            {this.renderNumber(1)}
+            {this.renderNumber(2)}
+            {this.renderNumber(3)}
+            {this.renderFunction('-')}
+          </div>
+          <div className="board-row">
+            {this.renderNumber(0)}
+            {this.renderNumber('.')}
+            {this.renderFunction('=')}
+            {this.renderFunction('+')}
+          </div>
+          <div className="board-row">
+            {this.renderClear()}
+          </div>
         </div>
-        <div className="board-row">
-          {this.renderScreen()}
-        </div>
-        <div className="board-row">
-          {this.renderNumber(7)}
-          {this.renderNumber(8)}
-          {this.renderNumber(9)}
-          {this.renderFunction('/')}
-        </div>
-        <div className="board-row">
-          {this.renderNumber(4)}
-          {this.renderNumber(5)}
-          {this.renderNumber(6)}
-          {this.renderFunction('*')}
-        </div>
-        <div className="board-row">
-          {this.renderNumber(1)}
-          {this.renderNumber(2)}
-          {this.renderNumber(3)}
-          {this.renderFunction('-')}
-        </div>
-        <div className="board-row">
-          {this.renderNumber(0)}
-          {this.renderNumber('.')}
-          {this.renderFunction('=')}
-          {this.renderFunction('+')}
-        </div>
-        <div className="board-row">
-          {this.renderClear()}
-        </div>
+        <hr style = {{marginTop: '20px'}} />
+        <p>
+          A Calculator is a tool that goes back to as early as 1960s and is something that still comes in handly in different aspect of one's life.
+          The above app is an example of a pocket Calculator which can be used to perform basic arithmetic operations on integers and decimals. 
+        </p>
       </div>
     )
   }

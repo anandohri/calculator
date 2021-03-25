@@ -7,6 +7,26 @@ ol, ul {
   padding-left: 30px;
 }
 
+h1 {
+  text-align: center;
+  margin-left: 25%;
+  color: #a2d315;
+  width: 50%;
+}
+
+hr {
+  width: 25%;
+  background-color: aqua;
+  height: 2px;
+  margin-bottom: 20px;
+}
+
+p {
+  width: 50%;
+  margin-left: 25%;
+  font-family: 'Courier New';
+}
+
 .board-row:after {
   clear: both;
   content: "";
@@ -91,6 +111,7 @@ ol, ul {
 .calc {
   border: 2px solid #234;
   width: 134px;
+  margin-left: 680px;
 }
 
 .square:focus {
